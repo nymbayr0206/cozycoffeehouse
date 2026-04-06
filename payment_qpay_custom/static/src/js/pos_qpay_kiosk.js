@@ -15,14 +15,13 @@ function delay(ms) {
 
 patch(SelfOrder.prototype, {
     filterPaymentMethods(paymentMethods) {
-        const result = super.filterPaymentMethods(paymentMethods);
-        const qpayMethods = paymentMethods.filter(
-            (method) => method.use_payment_terminal === "qpay"
-        );
-        const existingIds = new Set(result.map((method) => method.id));
+        const baseMethods = super.filterPaymentMethods(paymentMethods);
+        const baseIds = new Set(baseMethods.map((method) => method.id));
+        const result = [];
 
-        for (const method of qpayMethods) {
-            if (!existingIds.has(method.id)) {
+        for (const method of paymentMethods) {
+            const isManualBankMethod = method.type === "bank" && !method.is_cash_count;
+            if ((baseIds.has(method.id) || isManualBankMethod) && !result.includes(method)) {
                 result.push(method);
             }
         }
@@ -68,6 +67,12 @@ patch(PaymentPage.prototype, {
         });
     },
 
+    get availablePaymentMethods() {
+        return this.selfOrder.filterPaymentMethods(
+            this.selfOrder.models["pos.payment.method"].getAll()
+        );
+    },
+
     get isQPaySelected() {
         return (
             this.selectedPaymentMethod &&
@@ -91,6 +96,23 @@ patch(PaymentPage.prototype, {
     async startPayment() {
         if (this.selectedPaymentMethod && this.selectedPaymentMethod.use_payment_terminal === "qpay") {
             await this._startQPayPayment();
+            return;
+        }
+        if (
+            this.selectedPaymentMethod &&
+            this.selectedPaymentMethod.type === "bank" &&
+            !this.selectedPaymentMethod.use_payment_terminal
+        ) {
+            const order = await this.selfOrder.sendDraftOrderToServer();
+            if (order) {
+                await this.selfOrder.confirmationPage(
+                    "pay",
+                    this.selfOrder.config.self_ordering_mode,
+                    order.access_token
+                );
+            } else {
+                this.selfOrder.paymentError = true;
+            }
             return;
         }
         return super.startPayment();

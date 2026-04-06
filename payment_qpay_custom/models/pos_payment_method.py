@@ -20,15 +20,18 @@ class PosPaymentMethod(models.Model):
     @api.model
     def _load_pos_self_data_domain(self, data, config):
         base_domain = super()._load_pos_self_data_domain(data, config)
-        qpay_domain = [
-            ("use_payment_terminal", "=", "qpay"),
+        kiosk_bank_domain = [
             ("config_ids", "in", config.id),
+            ("journal_id.type", "=", "bank"),
+            ("is_cash_count", "=", False),
         ]
-        return Domain.OR([base_domain, qpay_domain])
+        return Domain.OR([base_domain, kiosk_bank_domain])
 
     def _payment_request_from_kiosk(self, order):
         if self.use_payment_terminal == "qpay":
             return self._qpay_kiosk_create_invoice(order)
+        if self.type == "bank" and not self.use_payment_terminal:
+            return {"status": "pending"}
         return super()._payment_request_from_kiosk(order)
 
     def _qpay_kiosk_create_invoice(self, order):
