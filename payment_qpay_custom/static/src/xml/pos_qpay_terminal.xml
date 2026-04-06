@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="payment_qpay_custom.QPayPaymentPopup">
+        <Dialog size="'md'" title="props.title">
+            <div class="d-flex flex-column align-items-center gap-3 text-center">
+                <p class="mb-0 fw-bold">Customer QR кодоо QPay апп-аар уншуулна уу.</p>
+                <img
+                    t-if="props.qrCode"
+                    t-att-src="props.qrCode"
+                    alt="QPay QR"
+                    style="width: 240px; height: 240px; object-fit: contain;"
+                />
+                <p t-else="" class="text-muted mb-0">
+                    QR зураг бэлэн биш байна. Доорх линкийг ашиглаж QPay-ийг нээнэ үү.
+                </p>
+                <div t-if="props.amount" class="fw-bold" t-esc="props.amount" />
+                <a
+                    t-if="props.shortUrl"
+                    t-att-href="props.shortUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-outline-primary"
+                >
+                    QPay холбоос нээх
+                </a>
+                <p class="text-muted mb-0 small">
+                    Төлбөр баталгаажмагц POS автоматаар дараагийн алхам руу шилжинэ.
+                </p>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-secondary" t-on-click="cancel">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

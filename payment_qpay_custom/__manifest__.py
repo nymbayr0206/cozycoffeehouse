@@ -47,6 +47,10 @@ Features:
         'wizard/qpay_qr_wizard_views.xml',
     ],
     'assets': {
+        'point_of_sale._assets_pos': [
+            'payment_qpay_custom/static/src/js/pos_qpay_terminal.js',
+            'payment_qpay_custom/static/src/xml/pos_qpay_terminal.xml',
+        ],
         'pos_self_order.assets': [
             'payment_qpay_custom/static/src/js/pos_qpay_kiosk.js',
             'payment_qpay_custom/static/src/xml/pos_qpay_kiosk.xml',
