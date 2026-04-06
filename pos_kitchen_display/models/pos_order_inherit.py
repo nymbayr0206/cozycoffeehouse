@@ -19,7 +19,7 @@ class PosOrder(models.Model):
         self.ensure_one()
         # pos_restaurant module adds table_id
         if 'table_id' in self._fields and self.table_id:
-            return self.table_id.name
+            return getattr(self.table_id, 'table_number', False) or getattr(self.table_id, 'name', '')
         return ''
 
     def _create_or_update_kitchen_order(self):
