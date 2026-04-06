@@ -21,6 +21,7 @@ class PosPayment(models.Model):
             "uuid",
             "amount",
             "payment_date",
+            "write_date",
             "pos_order_id",
             "payment_method_id",
             "is_change",
