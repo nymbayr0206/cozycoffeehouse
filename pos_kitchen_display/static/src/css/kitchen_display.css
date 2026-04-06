@@ -166,6 +166,20 @@
     color: #f1f5f9;
 }
 
+.o_kitchen_service_badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fcd34d;
+    background: rgba(245, 158, 11, 0.12);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-top: 4px;
+    width: fit-content;
+}
+
 .o_kitchen_table_badge {
     display: inline-flex;
     align-items: center;

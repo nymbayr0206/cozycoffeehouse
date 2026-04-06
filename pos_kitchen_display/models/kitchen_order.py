@@ -96,9 +96,22 @@ class KitchenOrder(models.Model):
     def _format_for_display(self):
         result = []
         for order in self:
+            pos_order = order.pos_order_id
+            preset = pos_order.preset_id if pos_order else False
+            service_at = preset.service_at if preset else ('table' if order.table_number and order.table_number != '-' else 'counter')
+            if service_at == 'delivery':
+                continue
+            service_label = "\u0410\u0432\u0447 \u044f\u0432\u0430\u0445"
+            if service_at == 'table':
+                service_label = "\u0421\u0443\u0443\u0436 \u04af\u0439\u043b\u0447\u043b\u04af\u04af\u043b\u044d\u0445"
+            display_name = order.name if order.name and order.name != '/' else service_label
             result.append({
                 'id': order.id,
                 'name': order.name,
+                'display_name': display_name,
+                'service_at': service_at,
+                'service_label': service_label,
+                'show_table_badge': service_at == 'table' and bool(order.table_number and order.table_number != '-'),
                 'table_number': order.table_number or '-',
                 'status': order.status,
                 'create_date': (

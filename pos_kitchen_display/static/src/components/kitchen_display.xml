@@ -8,8 +8,9 @@
             <!-- Header: order name, table, elapsed timer -->
             <div class="o_kitchen_card_header">
                 <div class="o_kitchen_card_title">
-                    <span class="o_kitchen_order_name" t-esc="order.name"/>
-                    <span class="o_kitchen_table_badge">
+                    <span class="o_kitchen_order_name" t-esc="order.display_name || order.name"/>
+                    <span class="o_kitchen_service_badge" t-esc="order.service_label"/>
+                    <span t-if="order.show_table_badge" class="o_kitchen_table_badge">
                         <i class="fa fa-cutlery"/>
                         <t t-esc="order.table_number"/>
                     </span>
