@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from odoo import _, api, fields, models
+from odoo import _, api, models
 from odoo.fields import Domain
 from odoo.exceptions import AccessDenied
 
@@ -11,10 +11,11 @@ _logger = logging.getLogger(__name__)
 class PosPaymentMethod(models.Model):
     _inherit = "pos.payment.method"
 
-    use_payment_terminal = fields.Selection(
-        selection_add=[("qpay", "QPay")],
-        ondelete={"qpay": "set default"},
-    )
+    def _get_payment_terminal_selection(self):
+        selection = list(super()._get_payment_terminal_selection())
+        if not any(value == "qpay" for value, _label in selection):
+            selection.append(("qpay", self.env._("QPay")))
+        return selection
 
     @api.model
     def _load_pos_self_data_domain(self, data, config):
