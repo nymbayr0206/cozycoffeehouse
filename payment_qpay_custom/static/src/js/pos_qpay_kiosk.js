@@ -144,7 +144,9 @@ patch(PaymentPage.prototype, {
                 this.state.qpayQR = paymentStatus.qr_image || null;
                 this.state.qpayShortUrl = paymentStatus.qpay_short_url || null;
                 this.state.qpayTransactionId = paymentStatus.transaction_id || null;
-                await this._pollQPayPayment();
+                this.state.qpayLoading = false;
+                void this._pollQPayPayment();
+                return;
             } else if (paymentStatus && paymentStatus.status === "error") {
                 this.state.qpayError = paymentStatus.message || _t("QPay request failed.");
                 this.selfOrder.paymentError = true;
