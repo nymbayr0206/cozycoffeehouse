@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <!-- ─── Order Card ──────────────────────────────────────────────── -->
+    <t t-name="pos_kitchen_display.KitchenOrderCard">
+        <div t-attf-class="o_kitchen_card status-{{ order.status }}">
+
+            <!-- Header: order name, table, elapsed timer -->
+            <div class="o_kitchen_card_header">
+                <div class="o_kitchen_card_title">
+                    <span class="o_kitchen_order_name" t-esc="order.name"/>
+                    <span class="o_kitchen_table_badge">
+                        <i class="fa fa-cutlery"/>
+                        <t t-esc="order.table_number"/>
+                    </span>
+                </div>
+                <div class="o_kitchen_card_timing">
+                    <span t-attf-class="o_kitchen_elapsed {{ elapsedClass(order) }}"
+                          t-esc="formatElapsed(order.elapsed_minutes)"/>
+                    <span class="o_kitchen_time_label">elapsed</span>
+                </div>
+            </div>
+
+            <!-- Lines -->
+            <div class="o_kitchen_card_body">
+                <t t-foreach="order.lines" t-as="line" t-key="line.id">
+                    <div class="o_kitchen_line">
+                        <span class="o_kitchen_qty" t-esc="formatQty(line.qty)"/>
+                        <span class="o_kitchen_product" t-esc="line.product_name"/>
+                        <t t-if="line.note">
+                            <span class="o_kitchen_line_note" t-esc="line.note"/>
+                        </t>
+                    </div>
+                </t>
+                <t t-if="order.note">
+                    <div class="o_kitchen_order_note">
+                        <i class="fa fa-sticky-note-o"/> <t t-esc="order.note"/>
+                    </div>
+                </t>
+            </div>
+
+            <!-- Footer: action buttons -->
+            <div class="o_kitchen_card_footer">
+                <t t-if="order.status === 'pending'">
+                    <button class="o_kitchen_btn btn-start"
+                            t-on-click="() => onMarkInProgress(order.id)">
+                        <i class="fa fa-play"/> Start
+                    </button>
+                    <button class="o_kitchen_btn btn-done"
+                            t-on-click="() => onMarkDone(order.id)">
+                        <i class="fa fa-check"/> Done
+                    </button>
+                </t>
+                <t t-elif="order.status === 'in_progress'">
+                    <button class="o_kitchen_btn btn-done"
+                            t-on-click="() => onMarkDone(order.id)">
+                        <i class="fa fa-check-circle"/> Mark Done
+                    </button>
+                    <button class="o_kitchen_btn btn-reset"
+                            t-on-click="() => onMarkPending(order.id)">
+                        <i class="fa fa-undo"/>
+                    </button>
+                </t>
+                <t t-elif="order.status === 'done'">
+                    <button class="o_kitchen_btn btn-reset"
+                            t-on-click="() => onMarkPending(order.id)">
+                        <i class="fa fa-undo"/> Reopen
+                    </button>
+                </t>
+            </div>
+
+        </div>
+    </t>
+
+    <!-- ─── Main Kitchen Display ─────────────────────────────────────── -->
+    <t t-name="pos_kitchen_display.KitchenDisplay">
+        <div class="o_kitchen_display o_action">
+
+            <!-- Header bar -->
+            <div class="o_kitchen_header">
+                <h1><span>&#x1F373;</span> Kitchen Display</h1>
+
+                <div class="o_kitchen_header_meta">
+                    <span class="o_kitchen_clock" t-esc="state.clock"/>
+                    <t t-if="state.lastUpdate">
+                        <span class="o_kitchen_last_update">
+                            Updated <t t-esc="state.lastUpdate"/>
+                        </span>
+                    </t>
+                </div>
+
+                <div class="o_kitchen_header_controls">
+                    <span class="o_kitchen_badge_count pending">
+                        <i class="fa fa-clock-o"/>
+                        <t t-esc="pendingOrders.length"/> Pending
+                    </span>
+                    <span class="o_kitchen_badge_count in_progress">
+                        <i class="fa fa-fire"/>
+                        <t t-esc="inProgressOrders.length"/> In Progress
+                    </span>
+                    <button t-attf-class="o_kitchen_toggle_done {{ state.showDone ? 'active' : '' }}"
+                            t-on-click="toggleShowDone">
+                        <i class="fa fa-check-square-o"/>
+                        <t t-if="state.showDone"> Hide Done</t>
+                        <t t-else=""> Show Done</t>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="o_kitchen_body">
+
+                <!-- Loading state -->
+                <t t-if="state.loading">
+                    <div class="o_kitchen_loading">
+                        <div class="o_kitchen_spinner"/>
+                        <p>Loading orders…</p>
+                    </div>
+                </t>
+
+                <t t-else="">
+                    <!-- Pending Orders -->
+                    <t t-if="pendingOrders.length">
+                        <div class="o_kitchen_section_label">
+                            <i class="fa fa-clock-o"/> Pending (<t t-esc="pendingOrders.length"/>)
+                        </div>
+                        <div class="o_kitchen_grid">
+                            <t t-foreach="pendingOrders" t-as="order" t-key="order.id">
+                                <t t-call="pos_kitchen_display.KitchenOrderCard">
+                                    <t t-set="order" t-value="order"/>
+                                </t>
+                            </t>
+                        </div>
+                    </t>
+
+                    <!-- In Progress Orders -->
+                    <t t-if="inProgressOrders.length">
+                        <div class="o_kitchen_section_label">
+                            <i class="fa fa-fire"/> In Progress (<t t-esc="inProgressOrders.length"/>)
+                        </div>
+                        <div class="o_kitchen_grid">
+                            <t t-foreach="inProgressOrders" t-as="order" t-key="order.id">
+                                <t t-call="pos_kitchen_display.KitchenOrderCard">
+                                    <t t-set="order" t-value="order"/>
+                                </t>
+                            </t>
+                        </div>
+                    </t>
+
+                    <!-- Done Orders (toggleable) -->
+                    <t t-if="state.showDone and doneOrders.length">
+                        <div class="o_kitchen_section_label">
+                            <i class="fa fa-check-circle"/> Done (<t t-esc="doneOrders.length"/>)
+                        </div>
+                        <div class="o_kitchen_grid">
+                            <t t-foreach="doneOrders" t-as="order" t-key="order.id">
+                                <t t-call="pos_kitchen_display.KitchenOrderCard">
+                                    <t t-set="order" t-value="order"/>
+                                </t>
+                            </t>
+                        </div>
+                    </t>
+
+                    <!-- Empty state -->
+                    <t t-if="!pendingOrders.length and !inProgressOrders.length">
+                        <div class="o_kitchen_empty">
+                            <i class="fa fa-check-circle"/>
+                            <p>All caught up! No active orders.</p>
+                            <small>New POS orders will appear here automatically.</small>
+                        </div>
+                    </t>
+                </t>
+
+            </div>
+        </div>
+    </t>
+
+</templates>

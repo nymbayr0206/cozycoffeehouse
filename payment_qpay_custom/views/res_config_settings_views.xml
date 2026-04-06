@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_qpay" model="ir.ui.view">
+        <field name="name">res.config.settings.view.qpay</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="QPay" name="payment_qpay_custom" data-string="QPay">
+                    <block title="QPay тохиргоо" name="qpay_settings_block">
+                        <setting string="Орчин" help="Sandbox = тест, Production = бодит төлбөр">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="qpay_environment" class="col-lg-3 o_light_label"/>
+                                    <field name="qpay_environment" widget="radio"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Нэвтрэх нэр" help="QPay merchant нэвтрэх нэр">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="qpay_username" class="col-lg-3 o_light_label"/>
+                                    <field name="qpay_username" placeholder="qpay_username"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Нууц үг" help="QPay merchant нууц үг">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="qpay_password" class="col-lg-3 o_light_label"/>
+                                    <field name="qpay_password" password="True" placeholder="••••••••"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Invoice код" help="QPay-с олгосон invoice_code">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="qpay_invoice_code" class="col-lg-3 o_light_label"/>
+                                    <field name="qpay_invoice_code" placeholder="TEST_INVOICE"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Callback URL" help="Хоосон үлдээвэл web.base.url ашиглана">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="qpay_callback_base_url" class="col-lg-3 o_light_label"/>
+                                    <field name="qpay_callback_base_url" placeholder="https://yourdomain.com"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

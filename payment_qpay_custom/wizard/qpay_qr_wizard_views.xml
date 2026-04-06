@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_qpay_qr_wizard_form" model="ir.ui.view">
+        <field name="name">qpay.qr.wizard.form</field>
+        <field name="model">qpay.qr.wizard</field>
+        <field name="arch" type="xml">
+            <form string="QPay QR Код">
+                <sheet>
+                    <div class="text-center">
+                        <h2>QPay-р төлөх</h2>
+                        <p class="text-muted">Дараах QR кодыг уншуулж төлбөр хийнэ үү</p>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="transaction_id" readonly="1"/>
+                            <field name="amount" readonly="1"/>
+                            <field name="state" readonly="1" widget="badge"
+                                decoration-success="state=='paid'"
+                                decoration-warning="state=='pending'"
+                            />
+                        </group>
+                        <group>
+                            <field name="qpay_short_url" widget="url" readonly="1"
+                                invisible="not qpay_short_url"
+                            />
+                        </group>
+                    </group>
+                    <div class="text-center mt16 mb16">
+                        <field name="qr_image" widget="image"
+                            options="{'size': [300, 300]}"
+                            invisible="not qr_image"
+                            nolabel="1"
+                        />
+                    </div>
+                    <div class="text-center text-muted" invisible="state == 'paid'">
+                        <p>
+                            <i class="fa fa-info-circle"/>
+                            Төлбөр хийсний дараа <b>Шалгах</b> товч дарна уу.
+                        </p>
+                    </div>
+                    <div class="alert alert-success text-center" role="alert"
+                        invisible="state != 'paid'"
+                    >
+                        <i class="fa fa-check-circle fa-2x"/>
+                        <b> Төлбөр амжилттай баталгаажлаа!</b>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_check_payment" string="Шалгах"
+                        type="object" class="btn-primary"
+                        invisible="state == 'paid'"
+                    />
+                    <button name="action_cancel" string="Цуцлах"
+                        type="object" class="btn-secondary"
+                        invisible="state == 'paid'"
+                        confirm="QPay гүйлгээг цуцлах уу?"
+                    />
+                    <button string="Хаах" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kitchen_order_manager,kitchen.order manager,model_kitchen_order,point_of_sale.group_pos_manager,1,1,1,1
+access_kitchen_order_user,kitchen.order user,model_kitchen_order,point_of_sale.group_pos_user,1,1,0,0
+access_kitchen_order_kitchen_staff,kitchen.order kitchen staff,model_kitchen_order,pos_kitchen_display.group_kitchen_staff,1,1,0,0
+access_kitchen_order_line_manager,kitchen.order.line manager,model_kitchen_order_line,point_of_sale.group_pos_manager,1,1,1,1
+access_kitchen_order_line_user,kitchen.order.line user,model_kitchen_order_line,point_of_sale.group_pos_user,1,1,0,0
+access_kitchen_order_line_kitchen_staff,kitchen.order.line kitchen staff,model_kitchen_order_line,pos_kitchen_display.group_kitchen_staff,1,0,0,0

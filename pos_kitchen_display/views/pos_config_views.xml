@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pos_config_form_kitchen" model="ir.ui.view">
+        <field name="name">pos.config.form.kitchen</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//setting[field[@name='is_posbox']]" position="after">
+                <setting string="Kitchen Display"
+                         help="Enable Kitchen Display System for this POS.">
+                    <field name="kitchen_display_enabled"/>
+                    <div class="content-group mt8" invisible="not kitchen_display_enabled">
+                        <div class="row">
+                            <div class="col-lg-5 o_light_label">
+                                <label for="kitchen_display_auto_send" string="Auto-send to kitchen"/>
+                            </div>
+                            <div class="col-lg-7">
+                                <field name="kitchen_display_auto_send"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-5 o_light_label">
+                                <label for="kitchen_display_alert_minutes" string="Alert after (min)"/>
+                            </div>
+                            <div class="col-lg-7">
+                                <field name="kitchen_display_alert_minutes"/>
+                            </div>
+                        </div>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

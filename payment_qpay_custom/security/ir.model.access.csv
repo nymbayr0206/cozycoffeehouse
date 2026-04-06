@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_qpay_transaction_user,qpay.transaction user,model_qpay_transaction,group_qpay_user,1,1,1,0
+access_qpay_transaction_manager,qpay.transaction manager,model_qpay_transaction,group_qpay_manager,1,1,1,1
+access_qpay_qr_wizard_user,qpay.qr.wizard user,model_qpay_qr_wizard,group_qpay_user,1,1,1,1

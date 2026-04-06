@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -m py_compile /opt/odoo/custom-addons/pos_kitchen_display/models/kitchen_order.py)",
+      "Bash(python3 -m py_compile /opt/odoo/custom-addons/pos_kitchen_display/models/pos_order_inherit.py)",
+      "Bash(python3 -m py_compile /opt/odoo/custom-addons/pos_kitchen_display/controllers/kitchen_display.py)",
+      "Bash(python3 -m py_compile /opt/odoo/custom-addons/pos_kitchen_display/__manifest__.py)",
+      "Bash(/dev/null --include=*.xml)"
+    ]
+  }
+}

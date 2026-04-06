@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Security group: Kitchen Staff -->
+    <record id="group_kitchen_staff" model="res.groups">
+        <field name="name">Kitchen Staff</field>
+    </record>
+
+    <!-- Kitchen Staff can read and update kitchen orders -->
+    <record id="rule_kitchen_order_kitchen_staff" model="ir.rule">
+        <field name="name">Kitchen Orders: Kitchen Staff</field>
+        <field name="model_id" ref="model_kitchen_order"/>
+        <field name="groups" eval="[(4, ref('group_kitchen_staff'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+</odoo>

@@ -1,0 +1,423 @@
+/* ─── Kitchen Display ──────────────────────────────────────────────── */
+
+.o_kitchen_display {
+    background: #0f1117;
+    min-height: 100vh;
+    color: #e8eaf0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header */
+.o_kitchen_header {
+    background: #1a1d27;
+    border-bottom: 2px solid #2d3147;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.o_kitchen_header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+.o_kitchen_header h1 span {
+    color: #f59e0b;
+}
+
+.o_kitchen_header_meta {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.o_kitchen_clock {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #94a3b8;
+    font-variant-numeric: tabular-nums;
+}
+
+.o_kitchen_last_update {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.o_kitchen_header_controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.o_kitchen_badge_count {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.o_kitchen_badge_count.pending {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.o_kitchen_badge_count.in_progress {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fcd34d;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+/* Body */
+.o_kitchen_body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+}
+
+/* Section labels */
+.o_kitchen_section_label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #475569;
+    margin: 0 0 12px 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.o_kitchen_section_label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #1e2235;
+}
+
+/* Card grid */
+.o_kitchen_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+/* Order Card */
+.o_kitchen_card {
+    background: #1a1d27;
+    border-radius: 12px;
+    border: 1px solid #2d3147;
+    overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.o_kitchen_card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.o_kitchen_card.status-pending {
+    border-left: 4px solid #ef4444;
+}
+
+.o_kitchen_card.status-in_progress {
+    border-left: 4px solid #f59e0b;
+    background: #1d1e28;
+}
+
+.o_kitchen_card.status-done {
+    border-left: 4px solid #22c55e;
+    opacity: 0.65;
+}
+
+/* Card header */
+.o_kitchen_card_header {
+    padding: 14px 16px 10px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    border-bottom: 1px solid #2d3147;
+}
+
+.o_kitchen_card_title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.o_kitchen_order_name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f1f5f9;
+}
+
+.o_kitchen_table_badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94a3b8;
+    background: #252836;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+    width: fit-content;
+}
+
+.o_kitchen_card_timing {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.o_kitchen_elapsed {
+    font-size: 1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.o_kitchen_elapsed.urgent {
+    color: #ef4444;
+    animation: pulse-red 1.5s infinite;
+}
+
+.o_kitchen_elapsed.warning {
+    color: #f59e0b;
+}
+
+.o_kitchen_elapsed.ok {
+    color: #22c55e;
+}
+
+.o_kitchen_time_label {
+    font-size: 0.65rem;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Card body — order lines */
+.o_kitchen_card_body {
+    padding: 12px 16px;
+    flex: 1;
+}
+
+.o_kitchen_line {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid #1e2235;
+}
+
+.o_kitchen_line:last-child {
+    border-bottom: none;
+}
+
+.o_kitchen_qty {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #f59e0b;
+    min-width: 28px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.o_kitchen_product {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #e2e8f0;
+    flex: 1;
+}
+
+.o_kitchen_line_note {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+.o_kitchen_order_note {
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: #252836;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* Card footer — action buttons */
+.o_kitchen_card_footer {
+    padding: 10px 16px;
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid #2d3147;
+    background: #141720;
+}
+
+.o_kitchen_btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    letter-spacing: 0.3px;
+}
+
+.o_kitchen_btn:active {
+    transform: scale(0.97);
+}
+
+.o_kitchen_btn.btn-start {
+    background: #d97706;
+    color: #ffffff;
+}
+
+.o_kitchen_btn.btn-start:hover {
+    background: #b45309;
+}
+
+.o_kitchen_btn.btn-done {
+    background: #15803d;
+    color: #ffffff;
+}
+
+.o_kitchen_btn.btn-done:hover {
+    background: #166534;
+}
+
+.o_kitchen_btn.btn-reset {
+    background: #374151;
+    color: #9ca3af;
+}
+
+.o_kitchen_btn.btn-reset:hover {
+    background: #4b5563;
+}
+
+/* Loading & empty states */
+.o_kitchen_loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 16px;
+    color: #475569;
+    font-size: 1rem;
+}
+
+.o_kitchen_spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #2d3147;
+    border-top-color: #f59e0b;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.o_kitchen_empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #334155;
+    gap: 12px;
+    text-align: center;
+}
+
+.o_kitchen_empty i {
+    font-size: 3rem;
+    opacity: 0.4;
+}
+
+.o_kitchen_empty p {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Toggle show-done button */
+.o_kitchen_toggle_done {
+    background: #1e2235;
+    border: 1px solid #2d3147;
+    color: #64748b;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.o_kitchen_toggle_done:hover {
+    background: #252836;
+    color: #94a3b8;
+}
+
+.o_kitchen_toggle_done.active {
+    border-color: #22c55e;
+    color: #22c55e;
+}
+
+/* Animations */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-red {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.o_kitchen_card {
+    animation: slide-in 0.25s ease both;
+}
+
+/* Scrollbar styling */
+.o_kitchen_body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.o_kitchen_body::-webkit-scrollbar-track {
+    background: #0f1117;
+}
+
+.o_kitchen_body::-webkit-scrollbar-thumb {
+    background: #2d3147;
+    border-radius: 3px;
+}

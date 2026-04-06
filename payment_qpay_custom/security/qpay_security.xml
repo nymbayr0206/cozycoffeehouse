@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_qpay_user" model="res.groups">
+        <field name="name">QPay Хэрэглэгч</field>
+    </record>
+
+    <record id="group_qpay_manager" model="res.groups">
+        <field name="name">QPay Менежер</field>
+    </record>
+</odoo>
