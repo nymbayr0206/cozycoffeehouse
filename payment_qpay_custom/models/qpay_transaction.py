@@ -141,6 +141,17 @@ class QpayTransaction(models.Model):
             _logger.warning("Failed to generate QPay QR image: %s", exc)
             return False
 
+    def _get_invoice_receiver_code(self):
+        self.ensure_one()
+        return (
+            self.partner_id.ref
+            or self.partner_id.vat
+            or self.pos_reference
+            or self.pos_order_uuid
+            or self.name
+            or "terminal"
+        )
+
     def _prepare_invoice_payload(self):
         self.ensure_one()
 
@@ -149,12 +160,14 @@ class QpayTransaction(models.Model):
             .sudo()
             .get_param("qpay.invoice_code", ""),
             "sender_invoice_no": self.name,
+            "invoice_receiver_code": self._get_invoice_receiver_code(),
             "invoice_description": self.description or self.name,
             "amount": self.amount,
             "callback_url": self._build_callback_url(),
         }
         if self.partner_id:
             payload["invoice_receiver_data"] = {
+                "register": self.partner_id.vat or self.partner_id.ref or "",
                 "name": self.partner_id.name or "",
                 "email": self.partner_id.email or "",
                 "phone": self.partner_id.phone or self.partner_id.mobile or "",
