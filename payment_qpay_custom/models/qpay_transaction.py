@@ -15,83 +15,75 @@ _logger = logging.getLogger(__name__)
 
 class QpayTransaction(models.Model):
     _name = "qpay.transaction"
-    _description = "QPay Гүйлгээ"
+    _description = "QPay Transaction"
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "id desc"
     _rec_name = "name"
 
-    name = fields.Char(string="Дугаар", readonly=True, copy=False, default="/")
+    name = fields.Char(string="Number", readonly=True, copy=False, default="/")
     state = fields.Selection(
         [
-            ("draft", "Ноорог"),
-            ("pending", "Хүлээгдэж байна"),
-            ("paid", "Төлөгдсөн"),
-            ("cancelled", "Цуцлагдсан"),
-            ("failed", "Амжилтгүй"),
+            ("draft", "Draft"),
+            ("pending", "Pending"),
+            ("paid", "Paid"),
+            ("cancelled", "Cancelled"),
+            ("failed", "Failed"),
         ],
-        string="Төлөв",
+        string="Status",
         default="draft",
         tracking=True,
         readonly=True,
     )
     company_id = fields.Many2one(
         "res.company",
-        string="Компани",
+        string="Company",
         default=lambda self: self.env.company,
         required=True,
     )
     currency_id = fields.Many2one(
         "res.currency",
-        string="Валют",
+        string="Currency",
         default=lambda self: self.env.company.currency_id,
         required=True,
     )
-    amount = fields.Monetary(string="Дүн", required=True)
+    amount = fields.Monetary(string="Amount", required=True)
     invoice_id = fields.Many2one(
         "account.move",
-        string="Нэхэмжлэл",
+        string="Invoice",
         domain=[("move_type", "in", ["out_invoice", "out_refund"])],
         ondelete="set null",
     )
-    sale_order_id = fields.Many2one("sale.order", string="Захиалга", ondelete="set null")
-    partner_id = fields.Many2one("res.partner", string="Харилцагч")
-    description = fields.Char(string="Тайлбар")
+    sale_order_id = fields.Many2one("sale.order", string="Sale Order", ondelete="set null")
+    partner_id = fields.Many2one("res.partner", string="Customer")
+    description = fields.Char(string="Description")
 
-    pos_order_id = fields.Many2one("pos.order", string="POS захиалга", ondelete="set null")
+    pos_order_id = fields.Many2one("pos.order", string="POS Order", ondelete="set null")
     payment_method_id = fields.Many2one(
-        "pos.payment.method", string="POS төлбөрийн арга", ondelete="set null"
+        "pos.payment.method", string="POS Payment Method", ondelete="set null"
     )
     pos_payment_id = fields.Many2one(
         "pos.payment",
-        string="POS төлбөр",
+        string="POS Payment",
         ondelete="set null",
         readonly=True,
         copy=False,
     )
-    pos_order_uuid = fields.Char(string="POS order UUID", readonly=True, copy=False)
-    pos_reference = fields.Char(string="POS reference", readonly=True, copy=False)
+    pos_order_uuid = fields.Char(string="POS Order UUID", readonly=True, copy=False)
+    pos_reference = fields.Char(string="POS Reference", readonly=True, copy=False)
 
     qpay_invoice_id = fields.Char(string="QPay Invoice ID", readonly=True, copy=False)
-    qr_text = fields.Text(string="QR текст", readonly=True, copy=False)
-    qr_image = fields.Binary(
-        string="QR зураг", readonly=True, copy=False, attachment=False
-    )
-    qpay_short_url = fields.Char(string="QPay богино холбоос", readonly=True, copy=False)
+    qr_text = fields.Text(string="QR Text", readonly=True, copy=False)
+    qr_image = fields.Binary(string="QR Image", readonly=True, copy=False, attachment=False)
+    qpay_short_url = fields.Char(string="QPay Short URL", readonly=True, copy=False)
     qpay_payment_id = fields.Char(string="QPay Payment ID", readonly=True, copy=False)
     callback_url = fields.Char(string="Callback URL", readonly=True, copy=False)
-    error_message = fields.Text(string="Алдааны мэдээлэл", readonly=True, copy=False)
-
-    ebarimt_created = fields.Boolean(
-        string="eBarimt үүссэн", default=False, readonly=True
-    )
+    error_message = fields.Text(string="Error Message", readonly=True, copy=False)
 
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             if vals.get("name", "/") == "/":
-                vals["name"] = (
-                    self.env["ir.sequence"].next_by_code("qpay.transaction") or "/"
-                )
+                vals["name"] = self.env["ir.sequence"].next_by_code("qpay.transaction") or "/"
         return super().create(vals_list)
 
     def _get_client(self):
@@ -104,8 +96,8 @@ class QpayTransaction(models.Model):
         if not username or not password or not invoice_code:
             raise UserError(
                 _(
-                    "QPay тохиргоо дутуу байна.\n"
-                    "Settings > Technical > QPay хэсэгт нэвтрэх нэр, нууц үг, invoice code-оо бөглөнө үү."
+                    "QPay settings are incomplete.\n"
+                    "Fill in the username, password, and invoice code first."
                 )
             )
 
@@ -197,21 +189,21 @@ class QpayTransaction(models.Model):
     def action_create_qpay_invoice(self):
         self.ensure_one()
         if self.state != "draft":
-            raise UserError(_("Зөвхөн ноорог гүйлгээнд QPay invoice үүсгэнэ."))
+            raise UserError(_("Only draft transactions can create a QPay invoice."))
 
         try:
             result = self._get_client().create_invoice(self._prepare_invoice_payload())
         except QPayAuthError as exc:
-            raise UserError(_("QPay нэвтрэлт амжилтгүй: %s") % exc) from exc
+            raise UserError(_("QPay authentication failed: %s") % exc) from exc
         except QPayApiError as exc:
-            raise UserError(_("QPay invoice үүсгэхэд алдаа гарлаа: %s") % exc) from exc
+            raise UserError(_("Failed to create QPay invoice: %s") % exc) from exc
 
         qpay_invoice_id = self._write_invoice_response(result)
-        self.message_post(body=_("QPay invoice үүсгэлээ. ID: %s") % qpay_invoice_id)
+        self.message_post(body=_("QPay invoice created. ID: %s") % qpay_invoice_id)
 
         return {
             "type": "ir.actions.act_window",
-            "name": _("QPay QR Код"),
+            "name": _("QPay QR Code"),
             "res_model": "qpay.qr.wizard",
             "view_mode": "form",
             "target": "new",
@@ -221,14 +213,14 @@ class QpayTransaction(models.Model):
     def action_check_payment(self):
         self.ensure_one()
         if not self.qpay_invoice_id:
-            raise UserError(_("QPay invoice ID байхгүй байна."))
+            raise UserError(_("Missing QPay invoice ID."))
         if self.state == "paid":
-            raise UserError(_("Энэ гүйлгээ аль хэдийн төлөгдсөн байна."))
+            raise UserError(_("This transaction is already paid."))
 
         try:
             result = self._get_client().check_payment(self.qpay_invoice_id)
         except QPayApiError as exc:
-            raise UserError(_("Төлбөр шалгахад алдаа гарлаа: %s") % exc) from exc
+            raise UserError(_("Failed to check payment status: %s") % exc) from exc
 
         paid_row = next(
             (
@@ -248,7 +240,7 @@ class QpayTransaction(models.Model):
                 }
             )
             self.message_post(
-                body=_("Төлбөр баталгаажлаа. QPay Payment ID: %s")
+                body=_("Payment confirmed. QPay Payment ID: %s")
                 % paid_row.get("payment_id", "")
             )
             self._on_payment_confirmed()
@@ -256,8 +248,8 @@ class QpayTransaction(models.Model):
                 "type": "ir.actions.client",
                 "tag": "display_notification",
                 "params": {
-                    "title": _("Амжилттай"),
-                    "message": _("Төлбөр баталгаажлаа."),
+                    "title": _("Success"),
+                    "message": _("Payment confirmed."),
                     "type": "success",
                     "sticky": False,
                 },
@@ -267,8 +259,8 @@ class QpayTransaction(models.Model):
             "type": "ir.actions.client",
             "tag": "display_notification",
             "params": {
-                "title": _("Хүлээгдэж байна"),
-                "message": _("Төлбөр одоогоор баталгаажаагүй байна."),
+                "title": _("Pending"),
+                "message": _("Payment has not been confirmed yet."),
                 "type": "warning",
                 "sticky": False,
             },
@@ -277,7 +269,7 @@ class QpayTransaction(models.Model):
     def action_cancel(self):
         self.ensure_one()
         if self.state not in ("draft", "pending"):
-            raise UserError(_("Зөвхөн ноорог эсвэл хүлээгдэж буй гүйлгээг цуцална."))
+            raise UserError(_("Only draft or pending transactions can be cancelled."))
 
         if self.qpay_invoice_id:
             try:
@@ -286,24 +278,7 @@ class QpayTransaction(models.Model):
                 _logger.warning("Failed to cancel QPay invoice %s: %s", self.name, exc)
 
         self.write({"state": "cancelled"})
-        self.message_post(body=_("QPay гүйлгээ цуцлагдлаа."))
-
-    def action_create_ebarimt(self):
-        self.ensure_one()
-        if self.state != "paid":
-            raise UserError(_("Зөвхөн төлөгдсөн гүйлгээнд eBarimt үүсгэнэ."))
-        if not self.qpay_payment_id:
-            raise UserError(_("QPay payment ID байхгүй байна."))
-        if self.ebarimt_created:
-            raise UserError(_("eBarimt аль хэдийн үүссэн байна."))
-
-        try:
-            self._get_client().create_ebarimt(self.qpay_payment_id)
-        except QPayApiError as exc:
-            raise UserError(_("eBarimt үүсгэхэд алдаа гарлаа: %s") % exc) from exc
-
-        self.write({"ebarimt_created": True})
-        self.message_post(body=_("eBarimt амжилттай үүслээ."))
+        self.message_post(body=_("QPay transaction cancelled."))
 
     def _create_qpay_invoice_for_kiosk(self):
         self.ensure_one()
@@ -312,7 +287,7 @@ class QpayTransaction(models.Model):
 
         result = self._get_client().create_invoice(self._prepare_invoice_payload())
         qpay_invoice_id = self._write_invoice_response(result)
-        self.message_post(body=_("QPay kiosk invoice үүсгэлээ. ID: %s") % qpay_invoice_id)
+        self.message_post(body=_("QPay kiosk invoice created. ID: %s") % qpay_invoice_id)
 
     def _on_payment_confirmed(self):
         self.ensure_one()
@@ -320,7 +295,7 @@ class QpayTransaction(models.Model):
         if self.invoice_id and self.invoice_id.payment_state not in ("paid", "in_payment"):
             try:
                 self.invoice_id.message_post(
-                    body=_("QPay төлбөр баталгаажлаа. Гүйлгээ: %s") % self.name
+                    body=_("QPay payment confirmed. Transaction: %s") % self.name
                 )
             except Exception:
                 pass
@@ -437,20 +412,16 @@ class QpayTransaction(models.Model):
 
             _logger.info("QPay POS order %s confirmed successfully", order.name)
         except Exception as exc:
-            _logger.error(
-                "Failed to confirm QPay POS order %s: %s",
-                order.name,
-                exc,
-            )
+            _logger.error("Failed to confirm QPay POS order %s: %s", order.name, exc)
 
     def action_show_qr(self):
         self.ensure_one()
         if not self.qr_image:
-            raise UserError(_("QR код байхгүй байна. Эхлээд QPay invoice үүсгэнэ үү."))
+            raise UserError(_("QR code is missing. Create a QPay invoice first."))
 
         return {
             "type": "ir.actions.act_window",
-            "name": _("QPay QR Код"),
+            "name": _("QPay QR Code"),
             "res_model": "qpay.qr.wizard",
             "view_mode": "form",
             "target": "new",
@@ -459,9 +430,7 @@ class QpayTransaction(models.Model):
 
     @api.model
     def cron_check_pending_payments(self):
-        pending = self.search(
-            [("state", "=", "pending"), ("qpay_invoice_id", "!=", False)]
-        )
+        pending = self.search([("state", "=", "pending"), ("qpay_invoice_id", "!=", False)])
         _logger.info("QPay cron checking %s pending transaction(s)", len(pending))
         for txn in pending:
             try:

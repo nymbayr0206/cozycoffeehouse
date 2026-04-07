@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- List view -->
     <record id="view_qpay_transaction_list" model="ir.ui.view">
         <field name="name">qpay.transaction.list</field>
         <field name="model">qpay.transaction</field>
         <field name="arch" type="xml">
-            <list string="QPay Гүйлгээнүүд" decoration-success="state=='paid'" decoration-danger="state=='failed'" decoration-muted="state=='cancelled'">
+            <list string="QPay Transactions" decoration-success="state=='paid'" decoration-danger="state=='failed'" decoration-muted="state=='cancelled'">
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="amount"/>
@@ -19,72 +18,62 @@
                     decoration-danger="state in ('failed','cancelled')"
                     decoration-info="state=='draft'"
                 />
-                <field name="ebarimt_created" optional="hide"/>
                 <field name="create_date" optional="hide"/>
             </list>
         </field>
     </record>
 
-    <!-- Form view -->
     <record id="view_qpay_transaction_form" model="ir.ui.view">
         <field name="name">qpay.transaction.form</field>
         <field name="model">qpay.transaction</field>
         <field name="arch" type="xml">
-            <form string="QPay Гүйлгээ">
+            <form string="QPay Transaction">
                 <header>
-                    <button name="action_create_qpay_invoice" string="QPay Invoice үүсгэх"
+                    <button name="action_create_qpay_invoice" string="Create QPay Invoice"
                         type="object" class="btn-primary"
                         invisible="state != 'draft'"
                         groups="group_qpay_user"
                     />
-                    <button name="action_check_payment" string="Төлбөр шалгах"
+                    <button name="action_check_payment" string="Check Payment"
                         type="object" class="btn-primary"
                         invisible="state != 'pending'"
                         groups="group_qpay_user"
                     />
-                    <button name="action_show_qr" string="QR Код харах"
+                    <button name="action_show_qr" string="Show QR"
                         type="object"
                         invisible="state != 'pending'"
                         groups="group_qpay_user"
                     />
-                    <button name="action_create_ebarimt" string="eBarimt үүсгэх"
-                        type="object"
-                        invisible="state != 'paid' or ebarimt_created"
-                        groups="group_qpay_user"
-                    />
-                    <button name="action_cancel" string="Цуцлах"
+                    <button name="action_cancel" string="Cancel"
                         type="object" class="btn-secondary"
                         invisible="state not in ('draft', 'pending')"
-                        confirm="Гүйлгээг цуцлах уу?"
+                        confirm="Cancel this transaction?"
                         groups="group_qpay_user"
                     />
-                    <field name="state" widget="statusbar"
-                        statusbar_visible="draft,pending,paid"
-                    />
+                    <field name="state" widget="statusbar" statusbar_visible="draft,pending,paid"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
                         <h1><field name="name" readonly="1"/></h1>
                     </div>
                     <group>
-                        <group string="Үндсэн мэдээлэл">
+                        <group string="Main Information">
                             <field name="partner_id"/>
                             <field name="amount"/>
                             <field name="currency_id" groups="base.group_multi_currency"/>
                             <field name="description"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
-                        <group string="Холбоос">
+                        <group string="Related Documents">
                             <field name="invoice_id"/>
                             <field name="sale_order_id"/>
                         </group>
                     </group>
-                    <group string="QPay мэдээлэл" invisible="state == 'draft'">
+                    <group string="QPay Information" invisible="state == 'draft'">
                         <group>
                             <field name="qpay_invoice_id"/>
                             <field name="qpay_payment_id" invisible="not qpay_payment_id"/>
                             <field name="qpay_short_url" widget="url" invisible="not qpay_short_url"/>
-                            <field name="ebarimt_created"/>
                         </group>
                         <group>
                             <field name="callback_url" invisible="not callback_url"/>
@@ -95,7 +84,7 @@
                             options="{'size': [250, 250]}"
                         />
                     </group>
-                    <group string="Алдааны мэдэгдэл" invisible="not error_message">
+                    <group string="Error Details" invisible="not error_message">
                         <field name="error_message" nolabel="1"/>
                     </group>
                 </sheet>
@@ -104,24 +93,21 @@
         </field>
     </record>
 
-    <!-- Search view -->
     <record id="view_qpay_transaction_search" model="ir.ui.view">
         <field name="name">qpay.transaction.search</field>
         <field name="model">qpay.transaction</field>
         <field name="arch" type="xml">
-            <search string="QPay Гүйлгээ хайх">
+            <search string="Search QPay Transactions">
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="qpay_invoice_id"/>
-                <filter string="Хүлээгдэж байна" name="pending" domain="[('state','=','pending')]"/>
-                <filter string="Төлөгдсөн" name="paid" domain="[('state','=','paid')]"/>
-                <filter string="Цуцлагдсан" name="cancelled" domain="[('state','=','cancelled')]"/>
-                <filter string="eBarimt дутуу" name="no_ebarimt"
-                    domain="[('state','=','paid'),('ebarimt_created','=',False)]"/>
+                <filter string="Pending" name="pending" domain="[('state','=','pending')]"/>
+                <filter string="Paid" name="paid" domain="[('state','=','paid')]"/>
+                <filter string="Cancelled" name="cancelled" domain="[('state','=','cancelled')]"/>
                 <group>
-                    <filter string="Харилцагч" name="group_partner" context="{'group_by': 'partner_id'}"/>
-                    <filter string="Төлөв" name="group_state" context="{'group_by': 'state'}"/>
-                    <filter string="Огноо" name="group_date" context="{'group_by': 'create_date:month'}"/>
+                    <filter string="Customer" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'create_date:month'}"/>
                 </group>
             </search>
         </field>
